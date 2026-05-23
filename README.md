@@ -45,6 +45,7 @@ In this assignment, I learned how to represent complex relationships using an Ad
 One challenge was correctly managing the `visited` set to prevent infinite loops during traversal.Additionally, learning to use `System.nanoTime()` taught me how to perform basic performance benchmarking in Java.
 
 DIJKSTRA'S ALGORITHM ADDITION
+
 Implemented Dijkstra's algorithm to find the shortest path from a starting vertex to all other vertices in the graph.
 
 Changes Made
@@ -57,6 +58,7 @@ Implemented dijkstra(int start) using arrays for distances and visited nodes, si
 Experiment Class: Updated buildGraph()` to assign varying edge weights and added Dijkstra timing to the results table.
 Output
 
+Sample Output:
 Dijkstra from 0:
 
 To node 0 -> Distance: 0
@@ -69,6 +71,7 @@ To node 6 -> Distance: 8
 To node 7 -> Distance: 10
 To node 8 -> Distance: 13
 To node 9 -> Distance: 11
+
 How Dijkstra Works
 
 Dijkstra finds the shortest path from a start node to every other node. All distances start as infinity except the start node which is 0. Each step picks the unvisited node with the smallest known distance, then checks its neighbors — if going through the current node gives a shorter path, it updates the distance. Repeats until all reachable nodes are settled.
