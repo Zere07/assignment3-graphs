@@ -1,16 +1,16 @@
 public class Vertex {
-    private int id; // Уникальный идентификатор [cite: 19]
+    private int id;
 
-    public Vertex(int id) { // Конструктор [cite: 21]
+    public Vertex(int id) {
         this.id = id;
     }
 
-    public int getId() { // Геттер [cite: 22]
+    public int getId() {
         return id;
     }
 
     @Override
-    public String toString() { // Для вывода [cite: 23]
+    public String toString() {
         return "Vertex{" + "id=" + id + '}';
     }
 }
