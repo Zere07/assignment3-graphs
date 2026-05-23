@@ -1,48 +1,69 @@
-import java.util.*;
-
 public class Experiment {
+    private long[] bfsTimes;
+    private long[] dfsTimes;
+    private int[] graphSizes;
 
-    public void runTraversals(Graph g, int startNode) {
-        long startBfs = System.nanoTime();
-        g.bfs(startNode);
-        long endBfs = System.nanoTime();
-        System.out.println("BFS Time: " + (endBfs - startBfs) + " ns");
+    public Experiment() {
+        graphSizes = new int[]{10, 30, 100};
+        bfsTimes = new long[graphSizes.length];
+        dfsTimes = new long[graphSizes.length];
+    }
 
-        long startDfs = System.nanoTime();
-        g.dfs(startNode);
-        long endDfs = System.nanoTime();
-        System.out.println("DFS Time: " + (endDfs - startDfs) + " ns");
+    public void runTraversals(Graph g, int index) {
+        long bfsStart = System.nanoTime();
+        g.bfs(0);
+        long bfsEnd = System.nanoTime();
+        bfsTimes[index] = bfsEnd - bfsStart;
 
-        long startDijkstra = System.nanoTime();
-        g.dijkstra(startNode);
-        long endDijkstra = System.nanoTime();
-        System.out.println("Dijkstra Time: " + (endDijkstra - startDijkstra) + " ns");
+        long dfsStart = System.nanoTime();
+        g.dfs(0);
+        long dfsEnd = System.nanoTime();
+        dfsTimes[index] = dfsEnd - dfsStart;
+
+        System.out.println("  BFS time: " + bfsTimes[index] + " ns");
+        System.out.println("  DFS time: " + dfsTimes[index] + " ns");
     }
 
     public void runMultipleTests() {
-        int[] sizes = {10, 30, 100};
+        System.out.println("=== PERFORMANCE EXPERIMENTS ===\n");
+        for (int i = 0; i < graphSizes.length; i++) {
+            int size = graphSizes[i];
+            Graph g = buildGraph(size);
 
-        for (int size : sizes) {
-            System.out.println("\n--- Testing Graph Size: " + size + " nodes ---");
+            System.out.println("--- Graph Size: " + size + " vertices, "
+                    + g.getEdgeCount() + " edges ---");
+            g.printGraph();
+            System.out.println();
 
-            Graph g = new Graph();
-
-            for (int i = 0; i < size; i++) {
-                g.addVertex(new Vertex(i));
-            }
-
-            for (int i = 0; i < size; i++) {
-                int edgesCount = (int) (Math.random() * 3) + 1; // от 1 до 3 связей у каждого узла
-                for (int j = 0; j < edgesCount; j++) {
-                    int destination = (int) (Math.random() * size);
-                    if (i != destination) {
-                        int randomWeight = (int) (Math.random() * 9) + 1; // Генерируем вес от 1 до 10
-                        g.addEdge(i, destination, randomWeight); // Передаем вес в граф
-                    }
-                }
-            }
-
-            runTraversals(g, 0);
+            runTraversals(g, i);
+            System.out.println();
         }
+    }
+
+    public void printResults() {
+        System.out.println("=== RESULTS SUMMARY TABLE ===");
+        System.out.printf("%-15s %-20s %-20s%n", "Graph Size", "BFS Time (ns)", "DFS Time (ns)");
+        System.out.println("-".repeat(55));
+
+        for (int i = 0; i < graphSizes.length; i++) {
+            System.out.printf("%-15d %-20d %-20d%n",
+                    graphSizes[i], bfsTimes[i], dfsTimes[i]);
+        }
+        System.out.println();
+    }
+
+    private Graph buildGraph(int size) {
+        Graph g = new Graph();
+
+        for (int i = 0; i < size; i++) {
+            g.addVertex(new Vertex(i));
+        }
+        for (int i = 0; i < size; i++) {
+            int weight1 = (i % 5) + 1;
+            int weight2 = ((i + 1) % 7) + 1;
+            g.addEdge(i, (i + 1) % size);
+            g.addEdge(i, (i + 2) % size);
+        }
+        return g;
     }
 }

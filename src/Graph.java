@@ -1,44 +1,72 @@
 import java.util.*;
 
 public class Graph {
-    private Map<Integer, List<Edge>> adj = new HashMap<>();
-
-    public void addVertex(Vertex v) {
-        adj.putIfAbsent(v.getId(), new ArrayList<>());
+    private Map<Integer, Vertex> vertices;
+    private Map<Integer, List<Integer>> adjacencyList;
+    private Map<Integer, Map<Integer, Integer>> weightMap;
+    public Graph() {
+        vertices = new HashMap<>();
+        adjacencyList = new HashMap<>();
+        weightMap = new HashMap<>();
     }
 
+    public void addVertex(Vertex v) {
+        if (!vertices.containsKey(v.getId())) {
+            vertices.put(v.getId(), v);
+            adjacencyList.put(v.getId(), new ArrayList<>());
+            weightMap.put(v.getId(), new HashMap<>());
+        }
+    }
+
+    public void addEdge(int from, int to) { addEdge(from, to, 1); }
+
     public void addEdge(int from, int to, int weight) {
-        adj.putIfAbsent(from, new ArrayList<>());
-        adj.putIfAbsent(to, new ArrayList<>());
-        adj.get(from).add(new Edge(from, to, weight));
+        if (adjacencyList.containsKey(from) && adjacencyList.containsKey(to)) {
+            adjacencyList.get(from).add(to);
+            weightMap.get(from).put(to, weight);
+        }
     }
 
     public void printGraph() {
-        for (var entry : adj.entrySet()) {
-            System.out.println("Vertex " + entry.getKey() + " connects to: " + entry.getValue());
+        System.out.println("Graph Adjacency List:");
+        for (Map.Entry<Integer, List<Integer>> entry : adjacencyList.entrySet()) {
+            int from = entry.getKey();
+            List<Integer> neighbors = entry.getValue();
+            StringBuilder sb = new StringBuilder();
+            sb.append(from).append(": [");
+            for (int i = 0; i < neighbors.size(); i++) {
+                int to = neighbors.get(i);
+                int w = weightMap.get(from).get(to);
+                sb.append(to).append("(w=").append(w).append(")");
+                if (i < neighbors.size() - 1) sb.append(", ");
+            }
+            sb.append("]");
+            System.out.println(sb);
         }
     }
 
     public void bfs(int start) {
-        System.out.print("BFS Traversal starting from node " + start + ": ");
+        if (!adjacencyList.containsKey(start)) {
+            System.out.println("Start vertex " + start + " not found.");
+            return;
+        }
+
         Set<Integer> visited = new HashSet<>();
         Queue<Integer> queue = new LinkedList<>();
 
         visited.add(start);
         queue.add(start);
 
-        while (!queue.isEmpty()) {
-            int curr = queue.poll();
-            System.out.print(curr + " ");
+        System.out.print("BFS from " + start + ": ");
 
-            List<Edge> edges = adj.get(curr);
-            if (edges != null) {
-                for (Edge edge : edges) {
-                    int neighbor = edge.getDestination();
-                    if (!visited.contains(neighbor)) {
-                        visited.add(neighbor);
-                        queue.add(neighbor);
-                    }
+        while (!queue.isEmpty()) {
+            int current = queue.poll();
+            System.out.print(current + " ");
+
+            for (int neighbor : adjacencyList.get(current)) {
+                if (!visited.contains(neighbor)) {
+                    visited.add(neighbor);
+                    queue.add(neighbor);
                 }
             }
         }
@@ -46,75 +74,110 @@ public class Graph {
     }
 
     public void dfs(int start) {
-        System.out.print("DFS Traversal starting from node " + start + ": ");
+        if (!adjacencyList.containsKey(start)) {
+            System.out.println("Start vertex " + start + " not found.");
+            return;
+        }
+
         Set<Integer> visited = new HashSet<>();
-        dfsHelper(start, visited);
-        System.out.println();
-    }
+        Stack<Integer> stack = new Stack<>();
 
-    private void dfsHelper(int curr, Set<Integer> visited) {
-        visited.add(curr);
-        System.out.print(curr + " ");
+        stack.push(start);
 
-        List<Edge> edges = adj.get(curr);
-        if (edges != null) {
-            for (Edge edge : edges) {
-                int neighbor = edge.getDestination();
-                if (!visited.contains(neighbor)) {
-                    dfsHelper(neighbor, visited);
-                }
-            }
-        }
-    }
+        System.out.print("DFS from " + start + ": ");
 
-    public void dijkstra(int start) {
-        if (adj.isEmpty()) return;
+        while (!stack.isEmpty()) {
+            int current = stack.pop();
 
-        int maxId = 0;
-        for (int vertex : adj.keySet()) {
-            if (vertex > maxId) maxId = vertex;
-        }
-        int n = maxId + 1;
+            if (!visited.contains(current)) {
+                visited.add(current);
+                System.out.print(current + " ");
 
-        int[] dist = new int[n];
-        boolean[] visited = new boolean[n];
-
-        Arrays.fill(dist, Integer.MAX_VALUE);
-        dist[start] = 0;
-
-        for (int i = 0; i < n; i++) {
-            int u = -1;
-            int minDist = Integer.MAX_VALUE;
-
-            for (int v = 0; v < n; v++) {
-                if (adj.containsKey(v) && !visited[v] && dist[v] < minDist) {
-                    minDist = dist[v];
-                    u = v;
-                }
-            }
-
-            if (u == -1) break;
-            visited[u] = true;
-
-            List<Edge> edges = adj.get(u);
-            if (edges != null) {
-                for (Edge edge : edges) {
-                    int v = edge.getDestination();
-                    int weight = edge.getWeight();
-
-                    if (!visited[v] && dist[u] != Integer.MAX_VALUE && dist[u] + weight < dist[v]) {
-                        dist[v] = dist[u] + weight;
+                List<Integer> neighbors = adjacencyList.get(current);
+                for (int i = neighbors.size() - 1; i >= 0; i--) {
+                    if (!visited.contains(neighbors.get(i))) {
+                        stack.push(neighbors.get(i));
                     }
                 }
             }
         }
+        System.out.println();
+    }
 
-        System.out.println("Dijkstra Shortest Paths from node " + start + ":");
-        for (int v = 0; v < n; v++) {
-            if (adj.containsKey(v)) {
-                String distanceStr = (dist[v] == Integer.MAX_VALUE) ? "Infinity" : String.valueOf(dist[v]);
-                System.out.println("  To node " + v + " -> Minimum Distance = " + distanceStr);
+    public void dijkstra(int start) {
+        if (!adjacencyList.containsKey(start)) {
+            System.out.println("Start vertex " + start + " not found.");
+            return;
+        }
+
+        int size = vertices.size();
+        int[] dist = new int[size];
+        int[] prev = new int[size];
+        boolean[] visited = new boolean[size];
+
+        Arrays.fill(dist, Integer.MAX_VALUE);
+        Arrays.fill(prev, -1);
+        dist[start] = 0;
+
+        for (int i = 0; i < size; i++) {
+            int u = -1;
+            for (int j = 0; j < size; j++) {
+                if (!visited[j] && (u == -1 || dist[j] < dist[u])) {
+                    u = j;
+                }
+            }
+
+            if (dist[u] == Integer.MAX_VALUE) break;
+
+            visited[u] = true;
+
+            for (int neighbor : adjacencyList.get(u)) {
+                int edgeWeight = weightMap.get(u).get(neighbor);
+                if (!visited[neighbor] && dist[u] + edgeWeight < dist[neighbor]) {
+                    dist[neighbor] = dist[u] + edgeWeight;
+                    prev[neighbor] = u;
+                }
             }
         }
+
+        System.out.println("Dijkstra from vertex " + start + ":");
+        System.out.printf("  %-10s %-15s %s%n", "Vertex", "Distance", "Path");
+        System.out.println("  " + "-".repeat(40));
+        for (int i = 0; i < size; i++) {
+            String distStr = (dist[i] == Integer.MAX_VALUE) ? "unreachable" : String.valueOf(dist[i]);
+            String path = buildPath(prev, i, start);
+            System.out.printf("  %-10d %-15s %s%n", i, distStr, path);
+        }
+    }
+
+    private String buildPath(int[] prev, int target, int start) {
+        if (target == start) return String.valueOf(start);
+
+        List<Integer> path = new ArrayList<>();
+        for (int v = target; v != -1; v = prev[v]) {
+            path.add(v);
+        }
+
+        if (path.get(path.size() - 1) != start) return "unreachable";
+
+        Collections.reverse(path);
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < path.size(); i++) {
+            sb.append(path.get(i));
+            if (i < path.size() - 1) sb.append(" -> ");
+        }
+        return sb.toString();
+    }
+
+    public int getVertexCount() {
+        return vertices.size();
+    }
+
+    public int getEdgeCount() {
+        int count = 0;
+        for (List<Integer> neighbors : adjacencyList.values()) {
+            count += neighbors.size();
+        }
+        return count;
     }
 }

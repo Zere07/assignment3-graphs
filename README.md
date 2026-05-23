@@ -44,55 +44,36 @@ In this assignment, I learned how to represent complex relationships using an Ad
 
 One challenge was correctly managing the `visited` set to prevent infinite loops during traversal.Additionally, learning to use `System.nanoTime()` taught me how to perform basic performance benchmarking in Java.
 
-Assignment 4: Graph Traversal Algorithms & Dijkstra's Algorithm (BONUS TASK)
+DIJKSTRA'S ALGORITHM ADDITION
+Implemented Dijkstra's algorithm to find the shortest path from a starting vertex to all other vertices in the graph.
 
- Project Overview
-This project implements a directed graph structure in Java using an Adjacency List. It includes basic graph traversal algorithms (BFS and DFS), as well as Dijkstra's Shortest Path Algorithm** as a bonus task.
+Changes Made
 
-The main goal of the project is to analyze and compare the empirical execution times of these algorithms on random graphs of different sizes (10, 30, and 100 vertices).
+Edge Class: Added the weight field, updated the constructor and added a getWeight() getter.
+Graph Class:
+Switched the adjacency list to Map<Integer, List> to store weighted edges directly.
+Updated bfs and dfs to work with the new Edge-based structure.
+Implemented dijkstra(int start) using arrays for distances and visited nodes, simple loops, no priority queue.
+Experiment Class: Updated buildGraph()` to assign varying edge weights and added Dijkstra timing to the results table.
+Output
 
+Dijkstra from 0:
 
- Core Infrastructure
+To node 0 -> Distance: 0
+To node 1 -> Distance: 1
+To node 2 -> Distance: 1
+To node 3 -> Distance: 3
+To node 4 -> Distance: 4
+To node 5 -> Distance: 7
+To node 6 -> Distance: 8
+To node 7 -> Distance: 10
+To node 8 -> Distance: 13
+To node 9 -> Distance: 11
+How Dijkstra Works
 
- 1. Vertex Class
-Represents a single node in the graph. Each vertex has a unique integer ID.
-Method `getId()` returns the identifier.
-Overridden `toString()` prints just the ID for clean output.
+Dijkstra finds the shortest path from a start node to every other node. All distances start as infinity except the start node which is 0. Each step picks the unvisited node with the smallest known distance, then checks its neighbors — if going through the current node gives a shorter path, it updates the distance. Repeats until all reachable nodes are settled.
 
- 2. Edge Class
-Represents a directed, weighted link between two vertices.
-Contains `source`, `destination`, and an integer `weight`.
-`toString()` formats the edge as `source->destination (weight)`.
-
- 3. Graph Class
-Manages vertices and edges using a `Map<Integer, List<Edge>>` as an adjacency list.
-`addVertex(Vertex v)`: Adds a new vertex to the map if it does not exist.
-`addEdge(int from, int to, int weight)`: Connects two vertices with a weighted directed edge.
-`printGraph()`: Displays the full structure of the graph in the console.
-
-
-Algorithms Implemented
-BFS (Breadth-First Search): Explores the graph layer by layer using a `Queue` to ensure that vertices closer to the starting node are visited first.
-DFS (Depth-First Search): Explores as deep as possible along each branch before backtracking, implemented using a recursive helper function.
-Dijkstra's Algorithm (Bonus): Finds the shortest paths from a source node to all other reachable nodes. It uses plain arrays for tracking `distances` and `visited` status, finding the minimum temporary distance via simple loops (O(V^2)complexity) without relying on a PriorityQueue.
-
-Experimental Results
-
-The algorithms were tested on automatically generated random graphs containing 10, 30, and 100 nodes. Each node was randomly assigned 1 to 3 outgoing edges with weights ranging from 1 to 10.
-
-Here are the execution times recorded during the experiment:
-
-| Graph Size | BFS Time (ns) | DFS Time (ns) | Dijkstra Time (ns) |
-|------------|---------------|---------------|--------------------|
-| 10 nodes   | 1,549,200     | 455,500       | 4,567,200          |
-| 30 nodes   | 182,600       | 109,400       | 1,057,700          |
-| 100 nodes  | 2,635,100     | 2,781,000     | 3,964,000          |
-
- Key Takeaways:
-1. BFS vs DFS: Both standard traversals scale linearly based on the number of nodes and edges (O(V + E)). Fluctuations at 10 nodes are caused by JVM warmup effects during the first execution loop.
-2. Dijkstra Performance: Dijkstra's algorithm naturally takes more time than simple traversals because it performs edge relaxation and continuously scans the distance array to find the minimum unvisited vertex, matching its theoretical O(V^2) bound for this array-based implementation.
-3. Infinity Paths: In cases where a node cannot be reached from node 0 due to the random nature of the graph generation, the algorithm correctly logs the distance as `Infinity`.
-
+Unlike BFS which treats all edges as equal, Dijkstra accounts for weights so it can't assume the first path found is the shortest — it keeps updating until certain. The implementation uses a simple array scan instead of a priority queue, which is O(V²) rather than O(V log V), but keeps the code simple.
 
 
 
