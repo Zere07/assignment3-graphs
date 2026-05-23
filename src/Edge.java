@@ -1,18 +1,20 @@
 public class Edge {
-    private Vertex source;      // Начальная вершина [cite: 27]
-    private Vertex destination; // Конечная вершина [cite: 28]
+    private int source;
+    private int destination;
+    private int weight;
 
-    public Edge(Vertex source, Vertex destination) { // Конструктор [cite: 30]
+    public Edge(int source, int destination, int weight) {
         this.source = source;
         this.destination = destination;
+        this.weight = weight;
     }
 
-    // Геттеры [cite: 31]
-    public Vertex getSource() { return source; }
-    public Vertex getDestination() { return destination; }
+    public int getSource() { return source; }
+    public int getDestination() { return destination; }
+    public int getWeight() { return weight; }
 
     @Override
-    public String toString() { // Метод для вывода ребра [cite: 32]
-        return source.getId() + " -> " + destination.getId();
+    public String toString() {
+        return source + " -> " + destination + " (weight: " + weight + ")";
     }
 }
